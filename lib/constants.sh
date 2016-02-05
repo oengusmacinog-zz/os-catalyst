@@ -45,11 +45,6 @@ declare -r THIS_HOST=$(hostname)
 # application
 # ##################################################
 
-declare -r UB_CODENAME=$(lsb_release -sc)
-declare -r UB_OSNAME=$(lsb_release -si)
-declare -r UB_RELEASE=$(lsb_release -sr)
-declare -r UB_FULLID=$(lsb_release -sd)
-
 declare -r GS_VERSION=$(gnome-shell --version | sed 's/.* //')
 
 # Color Palette
@@ -101,18 +96,6 @@ declare -r ESPRESSO_PATH="$HOME/Applications/espresso"
 # ################ Script Globals ##################
 # ##################################################
 
-declare -r FULLNAME="Brian Garland"
-declare -r EMAIL="brian@efelle.com"
-
 declare -r LOCAL_DB_HOST="localhost"
 declare -r LOCAL_DB_USER="root"
 declare -r LOCAL_DB_PASS=""
-
-# ################ Get File Data ###################
-# ##################################################
-
-readarray APPSLIST < "$SCRIPT_PATH/etc/App.list"
-readarray DIRLIST < "$SCRIPT_PATH/etc/Directories.list"
-readarray REPOLIST < "$SCRIPT_PATH/etc/Repositories.list"
-readarray DEBLIST < "$SCRIPT_PATH/etc/DebPackages.list"
-readarray GEXTLIST < "$SCRIPT_PATH/etc/GnomeExtensions.list"

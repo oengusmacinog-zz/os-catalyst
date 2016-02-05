@@ -266,13 +266,20 @@ install_powerline() {
 # Repositories Installation
 
 repo_cleaner() {
-	if is_file "$APT_SRCLIST_PATH/$1"; then
-		safe_rm "$APT_SRCLIST_PATH/$1"
-		safe_rm "$APT_SRCLIST_PATH/$1.save"
-		emes actpos 'Updating' $2 $3 $4
+
+	if ! grep -q "$1" /etc/apt/sources.list /etc/apt/sources.list.d/*; then
+	    emes actpos 'Updating' $2 $3 $4
 	else
 		emes actpos 'Adding' $2 $3 $4
 	fi
+
+	# if is_file "$APT_SRCLIST_PATH/$1"; then
+	# 	safe_rm "$APT_SRCLIST_PATH/$1"
+	# 	safe_rm "$APT_SRCLIST_PATH/$1.save"
+	# 	emes actpos 'Updating' $2 $3 $4
+	# else
+	# 	emes actpos 'Adding' $2 $3 $4
+	# fi
 }
 
 # UB_CODENAME
@@ -363,47 +370,67 @@ install_repo() {
             ;;
 
         *Numix*|*numix*)
-        	repo_cleaner 'numix-ubuntu-ppa-wily.list' 'Numix' 'PPA'
+			if repo_not_installed "$1"; then
+				emes actpos Adding Numix PPA
+			else
+	    		emes actpos Updating Adding Numix PPA
+			fi
+    		# repo_cleaner 'numix' 'Numix' 'PPA'
 
-		    	apt-add-repository -y ppa:numix/ppa >> $TMP_DIR/temp_output.log 2>&1 &
-		    	progress_spinner $!
+	    	apt-add-repository -y ppa:numix/ppa >> $TMP_DIR/temp_output.log 2>&1 &
+	    	progress_spinner $!
 
-					econ check repo_installed " numix-ubuntu-ppa-$UB_CODENAME.list"
+			econ check repo_installed "numix"
             ;;
-						# *Universe*|*universe*)
-						# 	deb http://us.archive.ubuntu.com/ubuntu/ $UB_CODENAME universe" >> /etc/apt/sources.list.d/ubuntu_universe_updates.list) >> $TMP_DIR/temp_output.log 2>&1 &
-						# 	deb-src http://us.archive.ubuntu.com/ubuntu/ $UB_CODENAME universe" >> /etc/apt/sources.list.d/ubuntu_universe_updates.list) >> $TMP_DIR/temp_output.log 2>&1 &
-						# 	deb http://us.archive.ubuntu.com/ubuntu/ $UB_CODENAME-updates universe" >> /etc/apt/sources.list.d/ubuntu_universe_updates.list) >> $TMP_DIR/temp_output.log 2>&1 &
-						# 	deb-src http://us.archive.ubuntu.com/ubuntu/ $UB_CODENAME-updates universe" >> /etc/apt/sources.list.d/ubuntu_universe_updates.list) >> $TMP_DIR/temp_output.log 2>&1 &
-						# ;;
-						# *Multiverse*|*multiverse*)
-						# 	deb http://us.archive.ubuntu.com/ubuntu/ $UB_CODENAME multiverse" >> /etc/apt/sources.list.d/canonical_partner.list) >> $TMP_DIR/temp_output.log 2>&1 &
-						# 	deb-src http://us.archive.ubuntu.com/ubuntu/ $UB_CODENAME multiverse" >> /etc/apt/sources.list.d/canonical_partner.list) >> $TMP_DIR/temp_output.log 2>&1 &
-						# 	deb http://us.archive.ubuntu.com/ubuntu/ $UB_CODENAME-updates multiverse" >> /etc/apt/sources.list.d/canonical_partner.list) >> $TMP_DIR/temp_output.log 2>&1 &
-						# 	deb-src http://us.archive.ubuntu.com/ubuntu/ $UB_CODENAME-updates multiverse" >> /etc/apt/sources.list.d/canonical_partner.list) >> $TMP_DIR/temp_output.log 2>&1 &
-						# 	;;
-						*Verses*|*verses*|*Universe*|*universe*|*Multiverse*|*multiverse*)
-							sudo add-apt-repository "deb http://us.archive.ubuntu.com/ubuntu/ $UB_CODENAME universe multiverse"
-							sudo add-apt-repository "deb http://us.archive.ubuntu.com/ubuntu/ $UB_CODENAME-updates universe multiverse"
-							;;
-						*Partners*|*partners*)
-							$(echo "deb http://archive.canonical.com/ubuntu $UB_CODENAME partner" >> /etc/apt/sources.list.d/canonical_partner.list) >> $TMP_DIR/temp_output.log 2>&1 &
-							$(echo "deb-src http://archive.canonical.com/ubuntu $UB_CODENAME partner" >> /etc/apt/sources.list.d/canonical_partner.list) >> $TMP_DIR/temp_output.log 2>&1 &
-							;;
-						*Gnome*|*gnome*)
+#             deb http://us.archive.ubuntu.com/ubuntu/ wily universe
+# deb-src http://us.archive.ubuntu.com/ubuntu/ wily universe
+# deb http://us.archive.ubuntu.com/ubuntu/ wily-updates universe
+# deb-src http://us.archive.ubuntu.com/ubuntu/ wily-updates universe
+# # 		*Universe*|*universe*)
+# 			deb http://us.archive.ubuntu.com/ubuntu/ $UB_CODENAME universe" >> /etc/apt/sources.list.d/ubuntu_universe_updates.list) >> $TMP_DIR/temp_output.log 2>&1 &
+# 			deb-src http://us.archive.ubuntu.com/ubuntu/ $UB_CODENAME universe" >> /etc/apt/sources.list.d/ubuntu_universe_updates.list) >> $TMP_DIR/temp_output.log 2>&1 &
+# 			deb http://us.archive.ubuntu.com/ubuntu/ $UB_CODENAME-updates universe" >> /etc/apt/sources.list.d/ubuntu_universe_updates.list) >> $TMP_DIR/temp_output.log 2>&1 &
+# 			deb-src http://us.archive.ubuntu.com/ubuntu/ $UB_CODENAME-updates universe" >> /etc/apt/sources.list.d/ubuntu_universe_updates.list) >> $TMP_DIR/temp_output.log 2>&1 &
+# 		;;
+# 		*Multiverse*|*multiverse*)
+# 			deb http://us.archive.ubuntu.com/ubuntu/ $UB_CODENAME multiverse" >> /etc/apt/sources.list.d/canonical_partner.list) >> $TMP_DIR/temp_output.log 2>&1 &
+# 			deb-src http://us.archive.ubuntu.com/ubuntu/ $UB_CODENAME multiverse" >> /etc/apt/sources.list.d/canonical_partner.list) >> $TMP_DIR/temp_output.log 2>&1 &
+# 			deb http://us.archive.ubuntu.com/ubuntu/ $UB_CODENAME-updates multiverse" >> /etc/apt/sources.list.d/canonical_partner.list) >> $TMP_DIR/temp_output.log 2>&1 &
+# 			deb-src http://us.archive.ubuntu.com/ubuntu/ $UB_CODENAME-updates multiverse" >> /etc/apt/sources.list.d/canonical_partner.list) >> $TMP_DIR/temp_output.log 2>&1 &
+# 			;;
+# 		*Verses*|*verses*|*Universe*|*universe*|*Multiverse*|*multiverse*)
+# 			add-apt-repository -y "deb http://us.archive.ubuntu.com/ubuntu/ $UB_CODENAME universe multiverse" >> $TMP_DIR/temp_output.log 2>&1
+# 			add-apt-repository -y "deb http://us.archive.ubuntu.com/ubuntu/ $UB_CODENAME-updates universe multiverse" >> $TMP_DIR/temp_output.log 2>&1 &
+# 			progress_spinner $!
 
-							add-apt-repository -y "ppa:gnome3-team/gnome3" >> $TMP_DIR/temp_output.log 2>&1 &
-							add-apt-repository -y "ppa:gnome3-team/gnome3-staging" >> $TMP_DIR/temp_output.log 2>&1 &
-							# $(echo "deb http://ppa.launchpad.net/gnome3-team/gnome3/ubuntu wily main" >> /etc/apt/sources.list.d/gnome3.list) >> $TMP_DIR/temp_output.log 2>&1 &
-							# $(echo "deb http://ppa.launchpad.net/gnome3-team/gnome3/ubuntu $UB_CODENAME main" >> /etc/apt/sources.list.d/gnome3.list) >> $TMP_DIR/temp_output.log 2>&1 &
-							# $(echo "deb-src http://ppa.launchpad.net/gnome3-team/gnome3/ubuntu $UB_CODENAME main" >> /etc/apt/sources.list.d/gnome3.list) >> $TMP_DIR/temp_output.log 2>&1 &
-							# $(echo "deb http://ppa.launchpad.net/gnome3-team/gnome3-staging/ubuntu $UB_CODENAME main" >> /etc/apt/sources.list.d/gnome3-staging.list) >> $TMP_DIR/temp_output.log 2>&1 &
-							# $(echo "deb-src http://ppa.launchpad.net/gnome3-team/gnome3-staging/ubuntu $UB_CODENAME main" >> /etc/apt/sources.list.d/gnome3-staging.list) >> $TMP_DIR/temp_output.log 2>&1 &
-						;;
-        * )
-			emes actneg "$1 repository" 'currently not supported' '' "I\'m sorry,"
-			eerr -i
-            ;;
+# echo "done"
+# 			# econ check repo_installed " numix-ubuntu-ppa-$UB_CODENAME.list"
+# 			;;
+		*Partners*|*partners*)
+			if repo_l_not_installed "## deb http:\/\/archive.canonical.com\/ubuntu $OS_NAME partner"; then
+			    emes actpos 'Activating' 'Canonical' 'Partners' 'Repository'
+			    sed -i "s/## deb http:\/\/archive.canonical.com\/ubuntu $OS_NAME partner/deb http:\/\/archive.canonical.com\/ubuntu $OS_NAME partner/g" /etc/apt/sources.list
+			    sed -i "s/## deb-src http:\/\/archive.canonical.com\/ubuntu $OS_NAME partner/deb-src http:\/\/archive.canonical.com\/ubuntu $OS_NAME partner/g" /etc/apt/sources.list
+				progress_spinner $!
+				econ check repo_l_installed "## deb http:\/\/archive.canonical.com\/ubuntu $OS_NAME partner"
+			else
+				emes infpos 'Canonical' 'already installed' 'Partners' 'repository'
+			fi
+			;;
+		*Gnome*|*gnome*)
+
+			add-apt-repository -y "ppa:gnome3-team/gnome3" >> $TMP_DIR/temp_output.log 2>&1 &
+			add-apt-repository -y "ppa:gnome3-team/gnome3-staging" >> $TMP_DIR/temp_output.log 2>&1 &
+			# $(echo "deb http://ppa.launchpad.net/gnome3-team/gnome3/ubuntu wily main" >> /etc/apt/sources.list.d/gnome3.list) >> $TMP_DIR/temp_output.log 2>&1 &
+			# $(echo "deb http://ppa.launchpad.net/gnome3-team/gnome3/ubuntu $UB_CODENAME main" >> /etc/apt/sources.list.d/gnome3.list) >> $TMP_DIR/temp_output.log 2>&1 &
+			# $(echo "deb-src http://ppa.launchpad.net/gnome3-team/gnome3/ubuntu $UB_CODENAME main" >> /etc/apt/sources.list.d/gnome3.list) >> $TMP_DIR/temp_output.log 2>&1 &
+			# $(echo "deb http://ppa.launchpad.net/gnome3-team/gnome3-staging/ubuntu $UB_CODENAME main" >> /etc/apt/sources.list.d/gnome3-staging.list) >> $TMP_DIR/temp_output.log 2>&1 &
+			# $(echo "deb-src http://ppa.launchpad.net/gnome3-team/gnome3-staging/ubuntu $UB_CODENAME main" >> /etc/apt/sources.list.d/gnome3-staging.list) >> $TMP_DIR/temp_output.log 2>&1 &
+		;;
+    * )
+		emes actneg "$1 repository" 'currently not supported' '' "I\'m sorry,"
+		eerr -i
+        ;;
 
     esac
 
@@ -451,6 +478,27 @@ gnome_extension_install() {
   gsettings set org.gnome.shell enabled-extensions "$new_extensions"
 
   # gnome-shell --replace &
+}
+
+install_user_avatar() {
+
+	# emes config-single 'Setting' 'user' 'avatar'
+
+	case $usr_avatar in
+		Jace|jace) usr_avatar='jace.jpg';;
+		Anonymous|anonymous) usr_avatar='anonymous.png';;
+		Code|code) usr_avatar='code1.png';;
+		Coffee|coffee) usr_avatar='coffee1.png';;
+		Darth*|darth*) usr_avatar='darthmaul.jpg';;
+		Fedora|fedora) usr_avatar='fedora.jpg';;
+		Mystery|mystery) usr_avatar='mystery.png';;
+		*) usr_avatar='developer.png';;
+	esac
+
+	emes config-single 'user avatar' 'Setting' "to $usr_avatar"
+
+	cp "$SCRIPT_PATH/opt/graphics/avatar/$usr_avatar" "/var/lib/AccountsService/icons/$SUDO_USER"
+
 }
 
 # Update sources

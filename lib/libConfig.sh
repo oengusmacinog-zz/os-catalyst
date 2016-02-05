@@ -155,8 +155,11 @@ config_gnome_settings() {
     gsettings set org.gnome.desktop.interface clock-show-date true #Clock Shows Date
     gsettings set org.gnome.desktop.interface clock-show-seconds false
 
-    mkdir "$HOME/.local/share/wallpaper"
-    cp "$SCRIPT_PATH/opt/graphics/wallpapers/teksyndicate_1.png" "$HOME/.local/share/wallpaper/teksyndicate_1.png"
+    cp -rf "$SCRIPT_PATH/opt/graphics/wallpapers/" "$HOME/.local/share/wallpaper/"
+    case $usr_wallpaper in
+        teksyndicate) usr_wallpaper='teksyndicate_1.png';;
+        *) :;;
+    esac
     gsettings set org.gnome.desktop.background picture-uri "file://$HOME/.local/share/wallpaper/teksyndicate_1.png"
 
     printf ' '
@@ -216,11 +219,18 @@ config_gnome_settings() {
 
 }
 
+disable_error_dialogs() {
+
+    sed -i "s/enabled=1/enabled=0/g" /etc/default/apport
+
+}
+
 configGit() {
 
     emes config Git
-    git config --global user.email "$2"
-    git config --global user.name "$1"
+    git config --global user.email "$git_name"
+    git config --global user.name "$git_email"
+    git config --global push.default "$git_push"
     esuc -i
 
 }

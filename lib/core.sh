@@ -90,16 +90,19 @@ alert_msg() {
 	        ;;
 	esac
 
+	sitstr=$1
+	shift
+
 	# Print to $logFile
 	if [[ ${print_log} = "true" ]] || [ "${print_log}" == "1" ]; then
-		echo -e "$(date +"%m-%d-%Y %r") $(printf "[%9s]" ${1}) "${2}"" >> "${LOG_FILE}";
+		echo -e "$(date +"%m-%d-%Y %r") $(printf "[%9s]" ${sitstr}) "${@}"" >> "${LOG_FILE}";
 	fi
 
 	# Print to console when script is not 'quiet'
 	if [[ "${quiet}" = "true" ]] || [ ${quiet} == "1" ]; then
 		return
 	else
-		echo -e "$(date +"%r") ${color}$(printf "[%9s]" ${1}) "${2}"${reset}";
+		echo -e "$(date +"%r") ${color}$(printf "[%9s]" ${sitstr}) "${@}"${reset}";
 	fi
 }
 

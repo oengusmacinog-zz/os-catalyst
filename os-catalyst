@@ -1,0 +1,653 @@
+#!/usr/bin/env bash
+
+# ##################################################
+# The root script for FluxSDK
+#
+VERSION='1.0.0'               # Sets version variable
+#
+# HISTORY:
+#
+# * DATE - v0.0.1-alpha  - Project Initialization
+#
+# ##################################################
+
+# Variable with the location of this script.
+# ##################################################
+if [[ -L "${BASH_SOURCE[0]}" ]]; then
+	declare -r SCRIPT_PATH="$( dirname "$( readlink -f "${BASH_SOURCE[0]}" )" )"
+else
+	declare -r SCRIPT_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+fi
+
+# Add local bin to PATH if exists
+# ##################################################
+declare -r BIN_PATH="${SCRIPT_PATH}/bin"
+if [ -d "${BIN_PATH}" ]; then
+	PATH="$PATH:${BIN_PATH}"
+fi
+
+# Source Scripting Core
+# ##################################################
+# The core provides many functions which are needed
+# to provide the functionality of the Bash Script
+# Foundation. This script will fail if they can
+# not be found.
+# ##################################################
+
+declare -r CORE_FILE="${SCRIPT_PATH}/lib/core.sh" # Update this path to find the utilities.
+
+if [ -f "${CORE_FILE}" ]; then
+	source "${CORE_FILE}"
+else
+	echo "Please find the file core.sh and add a reference to it in this script. Exiting."
+	exit 1
+fi
+
+# Trap Cleanup
+# ##################################################
+# Any actions that should be taken if the script is
+# prematurely exited.  Always call this function at
+# the top of your script.
+# ##################################################
+trap_cleanup() {
+	echo ""
+	#cursor normal
+	tput cnorm
+	# Delete temp files, if any
+	if is_dir "${TMP_DIR}"; then
+		rm -r "${TMP_DIR}"
+	fi
+	die "Exit trapped."
+}
+
+# Safe Exit
+# ##################################################
+# Non destructive exit for when script exits
+# naturally.
+#
+# Usage:
+#     Add this function at the end of every script.
+# ##################################################
+safe_exit() {
+	#cursor normal
+	tput cnorm
+	# Delete temp files, if any
+	if is_dir "${TMP_DIR}"; then
+		rm -r "${TMP_DIR}"
+	fi
+	trap - INT TERM EXIT
+	exit
+}
+
+# Set Flags
+# ##################################################
+# Flags which can be overridden by user input.
+# Default values are below
+# ##################################################
+quiet=false
+print_log=false
+verbose=false
+force=false
+strict=false
+debug=false
+debug_full=false
+args=()
+
+# Set Temp Directory
+# ##################################################
+# Create temp directory with three random numbers
+# and the process ID in the name.  This directory is
+# removed automatically at exit.
+# ##################################################
+declare -r TMP_DIR="/tmp/${SCRIPT_NAME}.$RANDOM.$RANDOM.$RANDOM.$$"
+(umask 077 && mkdir "${TMP_DIR}") || {
+	die "Could not create temporary directory! Exiting."
+}
+
+# Logging
+# ##################################################
+# Log is only used when the '-l' flag is set.
+#
+# To never save a logfile change variable to
+# '/dev/null'. Save to Desktop use:
+#     $HOME/Desktop/${scriptBasename}.log
+#
+# Save to standard user log location use:
+#     $HOME/Library/Logs/${scriptBasename}.log
+# ##################################################
+declare -r LOG_FILE="$HOME/Library/Logs/${SCRIPT_BASE_NAME}.log"
+
+# Check for Dependencies
+# ##################################################
+# Arrays containing package dependencies needed to
+# execute this script. The script will fail if
+# dependencies are not installed.
+# ##################################################
+declare -r DEPENDENCIES=()
+
+conditional_test() {
+	if dpkg_installed "$1"; then
+		esuc "inside dpkg if"
+	else
+		eerr "inside dpkg else"
+	fi
+
+	if type_exists "$1"; then
+		esuc "inside type if"
+	else
+		eerr "inside type else"
+	fi
+}
+
+test_install() {
+	local test_array=("curl" "git" "libdns100" "filezilla")
+
+	for i in "${test_array[@]}"; do
+		install_package $i
+		#echo $i
+	done
+}
+
+test_repos() {
+	#local test_array=("Canonical Partners" "Partners Canonical" "canonical" "chrome" "sublime" "yorba" "rabbit")
+
+	for i in "${REPOLIST[@]}"; do
+		install_repo $i
+	done
+}
+
+test_arrays() {
+	# array[$arrayindex]=MONKEY
+	TESTCURR_EXEC=$FUNCNAME
+	echo -s "\$CURR_EXEC: $TESTCURR_EXEC"
+	# COMMAND_STR[other_test]="hello"
+	COMMAND_STR[$TESTCURR_EXEC]="hello"
+	echo -s "THIS ONE: ${COMMAND_STR[other_test]}"
+	# earrx COMMAND_STR
+	for i in "${!COMMAND_STR[@]}"; do
+		echo -n "\$"
+        echo -n "COMMAND_STR[$i]"
+        echo -n ": "
+        echo  ${COMMAND_STR[$i]}
+	done
+}
+
+ui_test() {
+
+	emes infneg curl
+	emes infpos Git
+
+	# repo_cleaner 'google-chrome.list' 'Google Chrome' 'PPA'
+	# esuc -i
+	# repo_cleaner 'webupd8team-ubuntu-sublime-text-3-wily.list' 'Sublime Text 3' 'PPA'
+	# esuc -i
+	# # eart -n --c=124 "The"
+	# # eart -bn --c=214 " Yorba repository"
+	# # eart -n --c=124 " is not currently supported on "
+	# # eart -bn --c=111 "Wily. "
+	# emes actionerror 'Yorba repository' 'is not currently supported on' 'Wily' 'The'
+ #    # eerr -i
+	# repo_cleaner 'getdeb.list' 'Getdeb' 'Repository' 'for RabbitVCS'
+	# esuc -i
+	# repo_cleaner 'otto-kesselgulasch-ubuntu-gimp-wily.list' 'Otto Kesselgulasch' 'PPA' 'for GIMP'
+	# esuc -i
+	# repo_cleaner 'nodesource.list' 'NodeJS' 'Project Repository' 'v5.x'
+	# esuc -i
+	# repo_cleaner 'spotify.list' 'Spotify' 'Repository'
+	# esuc -i
+	# repo_cleaner 'numix-ubuntu-ppa-wily.list' 'Numix' 'PPA'
+	# esuc -i
+
+	# local title='Test'
+	# emes actionerror "$title repository" 'currently not supported' '' "I\'m sorry,"
+	# eart -bn --c=120 "Updating"
+ #    eart -bn --c=159 " sources"
+ #    ekho -n "... "
+ #    esuc -i
+
+}
+
+other_test() {
+
+	:
+	# printspc 5
+
+}
+
+test_cleaner() {
+
+	set +o errexit
+
+	apt-get purge -y curl
+	apt-get purge -y git
+
+	set -o errexit
+
+}
+
+test_test() {
+
+
+
+# emes actpos 'Updating' 'oen' 'two' 'three'
+ # echo "deb http://archive.canonical.com/ubuntu $UB_CODENAME partner"
+ # $(echo "deb http://ppa.launchpad.net/gnome3-team/gnome3/ubuntu $UB_CODENAME main" >> /etc/apt/sources.list.d/gnome2.list)
+:
+}
+
+main() {
+# ############## Begin Script Here #################
+# ##################################################
+tput civis
+					# gsettings set org.gnome.desktop.interface gtk-theme 'Arc-Dark'
+					# gsettings set org.gnome.desktop.interface icon-theme 'Numix-Circle'
+					# gsettings set org.gnome.desktop.interface cursor-theme 'GT3-light'
+					# config_gnome_settings
+
+	case $1 in
+
+		config)
+			case $2 in
+				terminal)
+					config_gnome_terminal
+					;;
+				gnome)
+					case $3 in
+						settings) config_gnome_settings;;
+						extensions)
+							for i in "${GEXTLIST[@]}"; do
+									gnome_extension_install $i
+							done
+							ente -b "Press Alt+F2 then type 'r' and press enter to restart the Gnome Shell" && safe_exit
+							;;
+						theme) justdoit;;
+						icons) justdoit;;
+						cursor) justdoit;;
+						*) eerr "Please Specify what to configure..." && safe_exit;;
+					esac
+					;;
+				theme)
+					if $3 is_not_empty; then
+						os_theme=$3
+					fi
+					case $os_theme in
+						Arc-Dark*|Arc-dark*|arc-dark*)
+							emes config-single 'Arc-Dark' 'Setting' 'as Gnome theme'
+							gsettings set org.gnome.desktop.interface gtk-theme 'Arc-Dark'
+							;;
+						*) eerr "Please Specify a theme..." && safe_exit;;
+					esac
+					;;
+				icons)
+					if $3 is_not_empty; then
+						icon_theme=$3
+					fi
+					case $icon_theme in
+						Numix-Circle*|Numix-circle*|numix-circle*)
+							emes config-single 'Numix-Circle' 'Setting' 'as icon theme'
+							gsettings set org.gnome.desktop.interface icon-theme 'Numix-Circle'
+							;;
+						*) eerr "Please Specify a theme..." && safe_exit;;
+					esac
+					;;
+				cursor)
+					if $3 is_not_empty; then
+						cursor_theme=$3
+					fi
+					case $cursor_theme in
+						GT3-Light*|GT3-light*|Gt3-light*|gt3-light*)
+							emes config-single 'GT3-light' 'Setting' 'as cursor theme'
+							gsettings set org.gnome.desktop.interface icon-theme 'GT3-light'
+							;;
+						*) eerr "Please Specify a theme..." && safe_exit;;
+					esac
+					;;
+	
+				base)
+					edie runasuser
+					case $OS_ID in 
+						Ubuntu) 
+							config_gnome_terminal
+							config_gnome_settings
+							;;
+						*) edie installnotsupported 'Linux';;
+					esac
+					;;
+				*)echo "configure what?";;
+			esac
+			;;
+		install)
+			if is_empty $2; then
+				eerr "Please Specify what to install..." && safe_exit
+			fi
+			edie runassudo
+			case $2 in
+				atom)
+					install_ppa 'atom' 'webupd8team' 'Atom'
+					apt_update
+					install_package 'atom'
+					;;
+				# gnome)
+					# install_ppa 'gnome3' 'gnome3-team' 'Gnome 3'>> $TMP_DIR/temp_output.log 2>&1 &
+					# install_ppa 'gnome3-staging' 'gnome3-team' 'Gnome 3 Staging' >> $TMP_DIR/temp_output.log 2>&1 &
+					# apt_update
+					# apt_dist_upgrade
+					# ewar -db "Please Reboot" && safe_exit
+					# ;;
+				base)
+					case $OS_ID in 
+						Ubuntu) 
+							edie runassudo
+							install_user_avatar
+							# install_repo 'chrome'
+							# install_repo 'universe'
+							# install_repo 'multiverse'
+							install_repo 'partners'
+							# install_repo 'gnome'
+							# apt_update
+							apt_update
+							# apt_upgrade
+							apt_dist_upgrade
+							disable_error_dialogs
+							;;
+						*) edie installnotsupported 'Linux';;
+					esac
+					;;
+				theme)
+					if $3 is_not_empty; then
+						os_theme=$3
+					fi
+					case $3 in 
+						Arc-Dark*|Arc-dark*|arc-dark*)
+							emes actpos 'Installing' 'Arc-Dark' 'Gnome theme'
+
+							install_package autoconf
+							install_package automake
+							install_package pkg-config
+							install_package libgtk-3-dev
+							install_package git
+
+							nosudo 'git clone https://github.com/horst3180/arc-theme --depth 1'
+							cd arc-theme
+							nosudo chmod +x autogen.sh
+							nosudo ./autogen.sh --prefix=/usr
+							make install
+							cd ..
+							rm -rf arc-theme
+
+							econ check is_dir "/usr/share/themes/Arc-Dark"
+							;;
+						*) eerr "Please Specify a Gnome theme..." && safe_exit;;
+					esac
+					;;
+				icons)
+					if $3 is_not_empty; then
+						icon_theme=$3
+					fi
+					case $icon_theme in
+						Numix-Circle*|Numix-circle*|numix-circle*)
+							emes actpos 'Installing' 'Numix-Circle' 'icon theme'
+							install_repo numix
+							install_package numix-icon-theme-circle
+							;;
+						*) eerr "Please Specify an icon theme..." && safe_exit;;
+					esac
+					;;
+				cursor)
+					if $3 is_not_empty; then
+						cursor_theme=$3
+					fi
+					case $cursor_theme in
+						GT3-Light*|GT3-light*|Gt3-light*|gt3-light*)
+							emes actpos 'Installing' 'Arc-Dark' 'Gnome theme'
+							install_package unrar
+							nosudo wget -q - http://gnome-look.org/CONTENT/content-files/106536-GT3-colors-pack.rar
+							nosudo unrar e 106536-GT3-colors-pack.rar
+
+							tar zxf GT3.tar.gz -C /usr/share/icons
+							tar zxf GT3-bronze.tar.gz -C /usr/share/icons
+							tar zxf GT3-red.tar.gz -C /usr/share/icons
+							tar zxf GT3-azure.tar.gz -C /usr/share/icons
+							tar zxf GT3-light.tar.gz -C /usr/share/icons
+
+							rm 106536-GT3-colors-pack.rar GT3.tar.gz GT3-bronze.tar.gz GT3-red.tar.gz GT3-azure.tar.gz GT3-light.tar.gz
+							;;
+						*) eerr "Please Specify a cursor theme..." && safe_exit;;
+					esac
+					;;
+				repo*|Repo*|ppa|Ppa|PPA)
+					install_repo $3
+					apt_update
+					;;
+				this|os-cat|os-catalyst)
+
+					edie runassudo
+
+					case $OSTYPE in
+						linux-gnu)
+							case $OS_ID in 
+								Ubuntu)
+
+									install_binary_path='/usr/local/bin'
+									local long_exists=false
+									local short_exists=false
+
+									if is_not_symlink "$install_binary_path/os-catalyst"; then
+										ln -s "${BASH_SOURCE[0]}" "$install_binary_path/os-catalyst"
+									else
+										local long_exists=true
+									fi
+									if is_not_symlink "$install_binary_path/os-cat"; then
+										ln -s "${BASH_SOURCE[0]}" "$install_binary_path/os-cat"
+									else
+										local short_exists=true
+									fi
+
+									if $short_exists && $long_exists ; then
+										einf -nbl "OS Catalyst"
+										einf " is already installed"
+									elif $short_exists || $long_exists ; then
+										einf -nbl "OS Catalyst"
+										einf -n " installation"
+										esuc -n " completed"
+										einf "!"
+									else
+										einf -nbl "OS Catalyst"
+										einf -n " installation"
+										esuc -n " complete"
+										einf "!"
+									fi
+									;;
+								*) edie installnotsupported 'Linux';;
+							esac
+						;;
+						darwin) edie installnotsupported 'OSx';;
+					esac
+					;;
+				*) edie installnotsupported $2;;
+			esac
+			;;
+		remove|Remove)
+			edie runassudo
+			case $2 in
+				repo*|Repo*|ppa|Ppa|PPA)
+					remove_repo $3
+					apt_update
+					;;
+				*) eerr "Please Specify what to remove..." && safe_exit;;
+			esac
+			;;
+		test) test_test;;
+		*)
+			# emes infpos 'Canonical' 'already installed' 'Partners' 'repository'
+			:
+			
+
+			# emes config 'user avatar' 'Setting'
+			;;
+	esac
+tput cnorm
+# ##################################################
+# ############### End Script Here ##################
+}
+
+# ########### Begin Options and Usage ##############
+# ##################################################
+
+# Print usage
+# ##################################################
+
+usage() {
+	echo -n "${SCRIPT_NAME} [OPTION]... [FILE]...
+
+This is a simple tool to get up and running with Ubuntu Wily 15.10, as
+well as make some IT tasks a little simpler in the long run.
+
+By default (with not command) the main interface menu will start; for those who
+like shortcuts:
+
+ Commands:
+  justdoit          This sets up it all non-interactive. Go get a coffee after
+                        you start it.
+  config            Configuration commands by topic; requires an arguement. The
+                        available choices are: [terminal]
+  demo              Part of the program.  For development it can help to see
+                        parts of the interface at will; requires an arguement.
+                        The available choices are: ekho[ekho|einf|ente|ewar|
+                        esuc|eerr|emes|evar|earr], [colors]
+
+ Options:
+  -d, --debug       Light weight debugging (Prints 'edbg' from Echo Expansion)
+  -D, --DEBUG       Runs script in BASH debug mode (set -x)
+  -h, --help        Display this help and exit
+      --version     Output version information and exit
+
+"
+}
+
+# Parse options
+# ##################################################
+# Iterate over options breaking -ab into -a -b when
+# needed and --foo=bar into --foo bar
+# ##################################################
+
+optstring=h
+unset options
+while (($#)); do
+	case $1 in
+		# If option is of type -ab
+		-[!-]?*)
+			# Loop over each character starting with the second
+			for ((i=1; i < ${#1}; i++)); do
+				c=${1:i:1}
+
+				# Add current char to options
+				options+=("-$c")
+
+				# If option takes a required argument, and it's not the last char make
+				# the rest of the string its argument
+				if [[ $optstring = *"$c:"* && ${1:i+1} ]]; then
+					options+=("${1:i+1}")
+					break
+				fi
+			done
+			;;
+		# If option is of type --foo=bar
+		--?*=*) options+=("${1%%=*}" "${1#*=}") ;;
+		# add --endopts for --
+		--) options+=(--endopts) ;;
+		# Otherwise, nothing special
+		*) options+=("$1") ;;
+	esac
+	shift
+done
+set -- "${options[@]}"
+unset options
+
+# Print help if no arguments were passed.
+# ##################################################
+# Uncomment to force arguments when invoking the
+# script
+# ##################################################
+# [[ $# -eq 0 ]] && set -- "--help"
+
+# Read the options and set actions
+# ##################################################
+while [[ $1 = -?* ]]; do
+	case $1 in
+		-h|--help) usage >&2; safe_exit ;;
+		-v|--version) echo "$(basename $0) ${VERSION}"; safe_exit ;;
+		-u|--username) shift; username=${1} ;;
+		-p|--password) shift; echo "Enter Pass: "; stty -echo; read PASS; stty echo;
+		  echo ;;
+		--verbose) verbose=true ;;
+		-l|--log) print_log=true ;;
+		-q|--quiet) quiet=true ;;
+		-s|--strict) strict=true;;
+		-D|--DEBUG) debug_full=true;;
+		-d|--debug) debug=true;;
+		--force) force=true ;;
+		--endopts) shift; break ;;
+		*) die "invalid option: '$1'." ;;
+	esac
+	shift
+done
+
+# Store the remaining part as arguments.
+# ##################################################
+args+=("$@")
+
+# ##################################################
+# ############ End Options and Usage ###############
+
+# ##################################################
+# #####        TIME TO RUN THE SCRIPT          #####
+# #####                                        #####
+# #####  You shouldn't need to edit anything   #####
+# #####  beneath this line                     #####
+# #####                                        #####
+# ##################################################
+
+# Trap bad exits with your cleanup function
+# ##################################################
+trap trap_cleanup EXIT INT TERM
+
+# Set IFS to preferred implementation
+# ##################################################
+IFS=$'\n\t'
+
+# Exit on error
+# ##################################################
+# Append '||true' when you run the script if you
+# expect an error.
+# ##################################################
+set -o errexit
+
+# Run in debug mode, if set
+# ##################################################
+if ${debug_full}; then
+	set -x
+fi
+
+# Exit on empty variable if in 'strict' mode
+# ##################################################
+if ${strict}; then
+	set -o nounset
+fi
+
+# Pipefail
+# ##################################################
+# Bash will remember & return the highest exitcode
+# in a chain of pipes. This will catch the error in
+# case mysqldump fails in \`mysqldump |gzip\`, for
+# example.
+# ##################################################
+set -o pipefail
+
+# Run your script
+# ##################################################
+main $@
+
+# Exit cleanly
+# ##################################################
+safe_exit

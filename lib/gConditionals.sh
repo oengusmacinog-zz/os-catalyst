@@ -109,20 +109,33 @@ dpkg_not_installed() {
 #      some other action
 #    fi
 # ##################################################
+repo_l_installed() {
+	if ! grep -q "$1" /etc/apt/sources.list; then
+	    return 0
+	fi
+	return 1
+}
+
+repo_l_not_installed() {
+	if grep -q "$1" /etc/apt/sources.list; then
+	    return 0
+	fi
+	return 1
+}
+
 repo_installed() {
-	if [[ -f "$APT_SRCLIST_PATH/$1" ]]; then
-		return 0
+	if grep -q "$1" /etc/apt/sources.list.d/*; then
+	    return 0
 	fi
 	return 1
 }
 
 repo_not_installed() {
-	if [[ ! -f "$APT_SRCLIST_PATH/$1" ]]; then
-		return 0
+	if ! grep -q "$1" /etc/apt/sources.list.d/*; then
+	    return 0
 	fi
 	return 1
 }
-
 # Test success of last command
 # ##################################################
 # Usage:
