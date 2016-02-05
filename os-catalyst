@@ -255,6 +255,7 @@ tput civis
 					case $3 in
 						settings) config_gnome_settings;;
 						extensions)
+							edie runassudo
 							for i in "${GEXTLIST[@]}"; do
 									gnome_extension_install $i
 							done
@@ -357,7 +358,7 @@ tput civis
 					if is_not_empty $3; then
 						os_theme=$3
 					fi
-					case $3 in 
+					case $os_theme in 
 						Arc-Dark*|Arc-dark*|arc-dark*)
 							emes config 'Installing' 'Arc-Dark' 'Gnome theme'
 
@@ -367,11 +368,11 @@ tput civis
 							install_package libgtk-3-dev
 							install_package git
 
-							nosudo 'git clone https://github.com/horst3180/arc-theme --depth 1'
+							nosudo git clone https://github.com/horst3180/arc-theme --depth 1  >> $TMP_DIR/temp_output.log 2>&1 &
 							cd arc-theme
 							nosudo chmod +x autogen.sh
-							nosudo ./autogen.sh --prefix=/usr
-							make install
+							nosudo ./autogen.sh --prefix=/usr >> $TMP_DIR/temp_output.log 2>&1 &
+							make install  >> $TMP_DIR/temp_output.log 2>&1 &
 							cd ..
 							rm -rf arc-theme
 
@@ -386,8 +387,9 @@ tput civis
 					fi
 					case $icon_theme in
 						Numix-Circle*|Numix-circle*|numix-circle*)
-							emes actpos 'Installing' 'Numix-Circle' 'icon theme'
+							emes config 'Installing' 'Numix-Circle' 'icon theme'
 							install_repo numix
+							apt_update
 							install_package numix-icon-theme-circle
 							;;
 						*) eerr "Please Specify an icon theme..." && safe_exit;;
@@ -399,10 +401,10 @@ tput civis
 					fi
 					case $cursor_theme in
 						GT3-Light*|GT3-light*|Gt3-light*|gt3-light*)
-							emes actpos 'Installing' 'Arc-Dark' 'Gnome theme'
+							emes config 'Installing' 'Gt3-light' 'cursor theme'
 							install_package unrar
-							nosudo wget -q - http://gnome-look.org/CONTENT/content-files/106536-GT3-colors-pack.rar
-							nosudo unrar e 106536-GT3-colors-pack.rar
+							wget -q - http://gnome-look.org/CONTENT/content-files/106536-GT3-colors-pack.rar >> $TMP_DIR/temp_output.log 2>&1 &
+							unrar e 106536-GT3-colors-pack.rar >> $TMP_DIR/temp_output.log 2>&1 &
 
 							tar zxf GT3.tar.gz -C /usr/share/icons
 							tar zxf GT3-bronze.tar.gz -C /usr/share/icons

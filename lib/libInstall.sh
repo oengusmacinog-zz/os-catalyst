@@ -448,7 +448,7 @@ gnome_extension_install() {
   local old_extensions=$(gsettings get org.gnome.shell enabled-extensions)
   # echo ${GNOME_EXT_IDS[s$1]}
 
-  wget -q -O "${TMP_DIR}/temp-${1}" "https://extensions.gnome.org/extension-info/?pk=${GNOME_EXT_IDS[$1]}&shell_version=$GS_VERSION"
+  wget -q -O "${TMP_DIR}/temp-${1}" "https://extensions.gnome.org/extension-info/?pk=${GNOME_EXT_IDS[$1]}&shell_version=$GS_VERSION" >> $TMP_DIR/temp_output.log 2>&1 &
   # wget -q -O $TMP_DIR/temp "https://extensions.gnome.org/extension-info/?pk=$extension_id&shell_version=$GS_VERSION"
 
   local extension_uuid=$(cat "${TMP_DIR}/temp-${1}" | sed 's/.* "//' | sed 's/"}//')
@@ -458,9 +458,9 @@ gnome_extension_install() {
   #
   # # echo $extension_download_url
   #
-  wget -O "${TMP_DIR}/extension-${1}.zip" "${extension_download_url}"
+  wget -O "${TMP_DIR}/extension-${1}.zip" "${extension_download_url}" >> $TMP_DIR/temp_output.log 2>&1 &
   mkdir -p "$HOME/.local/share/gnome-shell/extensions/$extension_uuid"
-  unzip "${TMP_DIR}/extension-${1}.zip" -d "$HOME/.local/share/gnome-shell/extensions/$extension_uuid"
+  unzip "${TMP_DIR}/extension-${1}.zip" -d "$HOME/.local/share/gnome-shell/extensions/$extension_uuid" >> $TMP_DIR/temp_output.log 2>&1 &
 	# rm "${TMP_DIR}/extension.zip"
 
   if is_not_in_str "$extension_uuid" "$old_extensions"; then
