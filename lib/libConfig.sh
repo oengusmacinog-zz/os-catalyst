@@ -155,7 +155,7 @@ config_gnome_settings() {
     gsettings set org.gnome.desktop.interface clock-show-date true #Clock Shows Date
     gsettings set org.gnome.desktop.interface clock-show-seconds false
 
-    cp -rf "$SCRIPT_PATH/opt/graphics/wallpapers/" "$HOME/.local/share/wallpaper/"
+    cp -rf "$SCRIPT_PATH/opt/graphics/wallpaper/" "$HOME/.local/share/wallpaper/"
     case $usr_wallpaper in
         teksyndicate) usr_wallpaper='teksyndicate_1.png';;
         *) :;;

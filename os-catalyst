@@ -354,12 +354,12 @@ tput civis
 					esac
 					;;
 				theme)
-					if $3 is_not_empty; then
+					if is_not_empty $3; then
 						os_theme=$3
 					fi
 					case $3 in 
 						Arc-Dark*|Arc-dark*|arc-dark*)
-							emes actpos 'Installing' 'Arc-Dark' 'Gnome theme'
+							emes config 'Installing' 'Arc-Dark' 'Gnome theme'
 
 							install_package autoconf
 							install_package automake
@@ -381,7 +381,7 @@ tput civis
 					esac
 					;;
 				icons)
-					if $3 is_not_empty; then
+					if is_not_empty $3; then
 						icon_theme=$3
 					fi
 					case $icon_theme in
@@ -394,7 +394,7 @@ tput civis
 					esac
 					;;
 				cursor)
-					if $3 is_not_empty; then
+					if is_not_empty $3; then
 						cursor_theme=$3
 					fi
 					case $cursor_theme in
@@ -433,12 +433,12 @@ tput civis
 									local short_exists=false
 
 									if is_not_symlink "$install_binary_path/os-catalyst"; then
-										ln -s "${BASH_SOURCE[0]}" "$install_binary_path/os-catalyst"
+										ln -s "$SCRIPT_PATH/$SCRIPT_NAME" "$install_binary_path/os-catalyst"
 									else
 										local long_exists=true
 									fi
 									if is_not_symlink "$install_binary_path/os-cat"; then
-										ln -s "${BASH_SOURCE[0]}" "$install_binary_path/os-cat"
+										ln -s "$SCRIPT_PATH/$SCRIPT_NAME" "$install_binary_path/os-cat"
 									else
 										local short_exists=true
 									fi
@@ -481,7 +481,8 @@ tput civis
 		*)
 			# emes infpos 'Canonical' 'already installed' 'Partners' 'repository'
 			:
-			
+			# echo "${BASH_SOURCE[0]}"
+			# echo "$SCRIPT_PATH/$SCRIPT_NAME"
 
 			# emes config 'user avatar' 'Setting'
 			;;
