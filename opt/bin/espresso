@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+# ##################################################
+# Quick shortcut to 'add Espresso to PATH'
+# ##################################################
+
+CURRENT_LOCATION=$PWD
+cd ~/Applications/espresso
+./espresso
+cd $CURRENT_LOCATION

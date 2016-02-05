@@ -1,0 +1,21 @@
+{
+	"always_show_minimap_viewport": true,
+	"bold_folder_labels": false,
+	"caret_extra_bottom": 1,
+	"caret_extra_top": 1,
+	"caret_style": "phase",
+	"color_scheme": "Packages/Seti_UX/Seti.tmTheme",
+	"fade_fold_buttons": false,
+	"font_face": "Ubuntu Mono",
+	"font_size": 13,
+	"ignored_packages":
+	[
+		"Vintage"
+	],
+	"line_padding_bottom": 1,
+	"line_padding_top": 1,
+	"margin": 10,
+	"overlay_scroll_bars": "enabled",
+	"theme": "Seti_orig.sublime-theme",
+	"word_wrap": "true"
+}
