@@ -25,7 +25,7 @@ fi
 case $OSTYPE in
 	linux-gnu)
 		declare -r OS_ID=$(lsb_release -si)
-		case $OS_ID in 
+		case $OS_ID in
 			Ubuntu)
 
 				declare -r LIST_PATH="$SCRIPT_PATH/etc/Linux/Ubuntu"
@@ -34,8 +34,10 @@ case $OSTYPE in
 				declare -r OS_VER=$(lsb_release -sr)
 				declare -r OS_FULL=$(lsb_release -sd)
 
+				# Gnome 3
+				declare -r GEXT_PATH="$HOME/.local/share/gnome-shell/extensions"
 				readarray GEXTLIST < "$LIST_PATH/GnomeExtensions.list"
-				
+
 				;;
 			*) edie installnotsupported 'Linux';;
 		esac
@@ -46,4 +48,3 @@ esac
 readarray APPSLIST < "$LIST_PATH/App.list"
 readarray DIRLIST < "$LIST_PATH//Directories.list"
 readarray PURGELIST < "$LIST_PATH//Purge.list"
-

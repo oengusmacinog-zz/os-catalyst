@@ -103,7 +103,7 @@ emes() {
             ekho -dn "..."
             ;;
         actneg)
-            
+
             [ -n "$5" ] && eart -n --c=124 "$5 " || true
             [ -n "$2" ] && eart -bn --c=214 "$2" || true
             [ -n "$3" ] && eart -n --c=124 "$3" || true
@@ -148,8 +148,8 @@ emes() {
             # eart -n --c=202 " ⚙\n"
             ;;
         extraconf)
-            # [ -n "$5" ] && eart -n --c=226 " $5" ||  eart -n --c=226 "    ⮱  "
-            eart -n --c=202 "    ⚙  "
+            [ -n "$5" ] && eart -n --c=226 " $5" ||  eart -n --c=226 "    ⮱  "
+            eart -n --c=202 "⚙ "
             [ -n "$4" ] && eart -n --c=055 " $4" || true
             [ -n "$2" ] && eart -dn --c=120 "$2 " || 'Installing '
             [ -n "$3" ] && eart -bn --c=047 "$3" || true

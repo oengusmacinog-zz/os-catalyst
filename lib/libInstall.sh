@@ -438,46 +438,44 @@ install_repo() {
 
 gnome_extension_install() {
 
-  # echo ${TMP_DIR}
+	emes extraconf $1 'extension' 'Installing '
 
   local extension_name=$1
-  # local extension_id=815
-  # local extension_info_url="https://extensions.gnome.org/extension-info/?pk=$extension_id&shell_version=$GS_VERSION"
-  # local extension_download_url=1
-  # local extension_uuid=1
+	local new_extensions=''
   local old_extensions=$(gsettings get org.gnome.shell enabled-extensions)
-  # echo ${GNOME_EXT_IDS[s$1]}
 
-  wget -q -O "${TMP_DIR}/temp-${1}" "https://extensions.gnome.org/extension-info/?pk=${GNOME_EXT_IDS[$1]}&shell_version=$GS_VERSION" >> $TMP_DIR/temp_output.log 2>&1 &
-  # wget -q -O $TMP_DIR/temp "https://extensions.gnome.org/extension-info/?pk=$extension_id&shell_version=$GS_VERSION"
+	wget -q -O "${TMP_DIR}/mktmp" "https://extensions.gnome.org/extension-info/?pk=${GNOME_EXT_IDS[$1]}&shell_version=$GS_VERSION"
+	extension_info=$(cat "${TMP_DIR}/mktmp")
+	rm "${TMP_DIR}/mktmp"
 
-  local extension_uuid=$(cat "${TMP_DIR}/temp-${1}" | sed 's/.* "//' | sed 's/"}//')
+	local extension_uuid=$(echo $extension_info | sed 's/.* "//' | sed 's/"}//')
+	local extension_uuid_short=$(echo $extension_uuid | sed 's/\@.*//')
+	local extension_download_url="https://extensions.gnome.org$(echo $extension_info | sed 's/.*download_url": "//' | sed 's/", ".*//')"
 
-  # local extension_uuid='apps-menu@gnome-shell-extensions.gcampax.github.com'
-  local extension_download_url="https://extensions.gnome.org$(cat "${TMP_DIR}/temp-${1}" | sed 's/.*download_url": "//' | sed 's/", ".*//')"
-  #
-  # # echo $extension_download_url
-  #
-  wget -O "${TMP_DIR}/extension-${1}.zip" "${extension_download_url}" >> $TMP_DIR/temp_output.log 2>&1 &
+  wget -q -O "${TMP_DIR}/extension.zip" "${extension_download_url}"
+
   mkdir -p "$HOME/.local/share/gnome-shell/extensions/$extension_uuid"
-  unzip "${TMP_DIR}/extension-${1}.zip" -d "$HOME/.local/share/gnome-shell/extensions/$extension_uuid" >> $TMP_DIR/temp_output.log 2>&1 &
-	# rm "${TMP_DIR}/extension.zip"
+  unzip "${TMP_DIR}/extension.zip" -d "$HOME/.local/share/gnome-shell/extensions/$extension_uuid" >> $TMP_DIR/temp_output.log 2>&1 &
+	rm "${TMP_DIR}/extension.zip"
 
-  if is_not_in_str "$extension_uuid" "$old_extensions"; then
-    # echo "It's not there!"
-    local new_extensions=$(echo $old_extensions | sed "s/']/', '$extension_uuid']/")
-	# elif is_in_str "[]" "$old_extensions"; then
-	# 	local new_extensions=$(echo $old_extensions | sed "s//['$extension_uuid']/")
-		#statements
+	if [[ $old_extensions != *$extension_uuid* ]]; then
+		if [[ $old_extensions == *'[]'* ]]; then
+			new_extensions=${old_extensions/[]/[\'$extension_uuid\']}
+		else
+			new_extensions=${old_extensions/\']/\', \'$extension_uuid\']}
+		fi
   else
-	# 	local new_extensions='[]'
-    echo "It is there!"
+		new_extensions=$old_extensions
   fi
-  echo $new_extensions
-##Not setting correctly
-  gsettings set org.gnome.shell enabled-extensions "$new_extensions"
 
-  # gnome-shell --replace &
+	gsettings set org.gnome.shell enabled-extensions $new_extensions
+
+	if [[ $(gsettings get org.gnome.shell enabled-extensions) == *$extension_uuid* ]]; then
+		esuc -i
+	else
+		eerr -i
+	fi
+
 }
 
 install_user_avatar() {
