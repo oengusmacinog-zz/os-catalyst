@@ -137,6 +137,9 @@ config_gnome_settings() {
 
     emes extraconf 'Setting' 'power' '' '' 'preferences'
     gsettings set org.gnome.settings-daemon.plugins.power idle-dim false
+    gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-ac-type 'nothing'
+    gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-battery-timeout 1800
+    gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-ac-timeout 3600
     printf ' '
     esuc -i
 
