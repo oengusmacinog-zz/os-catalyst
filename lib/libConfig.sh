@@ -163,8 +163,12 @@ config_gnome_settings() {
         teksyndicate) usr_wallpaper='teksyndicate_1.png';;
         *) :;;
     esac
-    gsettings set org.gnome.desktop.background picture-uri "file://$HOME/.local/share/wallpaper/teksyndicate_1.png"
-
+    gsettings set org.gnome.desktop.background picture-uri "file://$HOME/.local/share/wallpaper/$usr_wallpaper"
+    case $usr_screensaver in
+        teksyndicate) usr_screensaver='teksyndicate_blue.png';;
+        *) :;;
+    esac
+    gsettings set org.gnome.desktop.screensaver picture-uri "file://$HOME/.local/share/wallpaper/$usr_screensaver"
     printf ' '
     esuc -i
 
