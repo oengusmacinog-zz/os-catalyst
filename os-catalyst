@@ -260,7 +260,7 @@ tput civis
 							for i in "${GEXTLIST[@]}"; do
 									gnome_extension_install $i
 							done
-							ente -b "Press Alt+F2 then type 'r' and press enter to restart the Gnome Shell" && safe_exit
+							edie restartGnomeShell
 							# local old_extensions=$(gsettings get org.gnome.shell enabled-extensions)
 							# echo $(gsettings get org.gnome.shell enabled-extensions)
 							# local extension_uuid='simple-dock'
@@ -278,6 +278,7 @@ tput civis
 						*) eerr "Please Specify what to configure..." && safe_exit;;
 					esac
 					;;
+				sublime) config_sublime;;
 				theme)
 					if $3 is_not_empty; then
 						os_theme=$3
@@ -354,38 +355,20 @@ tput civis
 							install_repo 'partners'
 							install_repo 'gnome'
 							apt_update
+							apt_upgrade
 							apt_dist_upgrade
 							disable_error_dialogs
+							edie timeToReboot
 							;;
 						*) edie installnotsupported 'Linux';;
 					esac
 					;;
+				sublime) install_sublime;;
 				theme)
 					if is_not_empty $3; then
 						os_theme=$3
 					fi
-					case $os_theme in
-						Arc-Dark*|Arc-dark*|arc-dark*)
-							emes config 'Installing' 'Arc-Dark' 'Gnome theme'
-
-							install_package autoconf
-							install_package automake
-							install_package pkg-config
-							install_package libgtk-3-dev
-							install_package git
-
-							nosudo git clone https://github.com/horst3180/arc-theme --depth 1
-							cd arc-theme
-							nosudo chmod +x autogen.sh
-							nosudo ./autogen.sh --prefix=/usr
-							make install
-							cd ..
-							rm -rf arc-theme
-
-							econ check is_dir "/usr/share/themes/Arc-Dark"
-							;;
-						*) eerr "Please Specify a Gnome theme..." && safe_exit;;
-					esac
+					install_theme $os_theme
 					;;
 				icons)
 					if is_not_empty $3; then
@@ -487,15 +470,7 @@ tput civis
 			;;
 		test) test_test;;
 		*)
-			# emes infpos 'Canonical' 'already installed' 'Partners' 'repository'
 			:
-			# temp_var="hello@world"
-			# # temp_var=${temp_var//^.*@([^@]*)$/a}
-			# temp_var=$(echo $temp_var | sed 's/\@.*//')
-			# echo $temp_var
-			# sed -i '' 's/\(<[^"]*"background-opacity">\)\([^<]*\)\(<[^>]*\)/\newpassword\3/g' '/home/jbc/.local/share/gnome-shell/extensions/simple-dock@nothing.org/schemas/simple-dock.gschema.xml'
-			# sed -i 's/\(<[^"]*"d"*[^"]*"background-opacity">\n\)/newpassword/g' '/home/jbc/.local/share/gnome-shell/extensions/simple-dock@nothing.org/schemas/simple-dock.gschema.xml'
-			# sed -i 's/\(<"background-opacity">\)/newpassword/g' '/home/jbc/.local/share/gnome-shell/extensions/simple-dock@nothing.org/schemas/simple-dock.gschema.xml'
 			;;
 	esac
 tput cnorm

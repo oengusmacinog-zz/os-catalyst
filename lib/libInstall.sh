@@ -82,7 +82,7 @@ install_deb() {
 	fi
 
 	emes actpos 'Downloading' "$pkg_title" "${pkg_infos[0]}" "${pkg_infos[1]}" "${pkg_infos[2]}"
-	nosudo wget "$pkg_url" -qO mktemp >> $TMP_DIR/temp_output.log 2>&1 &
+	wget "$pkg_url" -qO mktemp >> $TMP_DIR/temp_output.log 2>&1 &
 	progress_spinner $!
 	econ check is_file 'mktemp'
 
@@ -204,33 +204,14 @@ install_espresso() {
 }
 
 # Sublime Package Control
-install_sublime_pc() {
-
-	# Check if Sublime is Installed
-	dpkg_not_installed sublime-text-installer && die "Sublime Text 3 not installed" || true
-
-	# Check if Package Control is already installed
-	if is_dir "$HOME/.config/sublime-text-3/Installed\ Packages"; then
-		emes infpos 'Sublime Text 3' '' 'Package Control'
-		return
-	else
-		emes header 'Setting up' 'Sublime Text' 'lightweight code editor'
-		emes actpos 'Installing' 'Sublime Text 3' '' 'Package Control'
-		wget -qP "$HOME/.config/sublime-text-3/Installed\ Packages http://packagecontrol.io/Package%20Control.sublime-package" >> "$TMP_DIR/temp_output.log" 2>&1 &
-		progress_spinner $!
-		econ check is_dir "$HOME/.config/sublime-text-3/Installed Packages"
+install_sublime() {
+	install_deb sublime-text
+	# with symlink to open from cli
+	if is_symlink '/usr/local/bin/st'; then
+		rm /usr/local/bin/st
 	fi
-
-	# emes config 'Sublime Text 3'
-
-    # Install License Key
-    # sudo -u $SUDO_USER cp $__dir__/resources/License.sublime_license $HOME/.config/sublime-text-3/Local/License.sublime_license
-
-    emes extraconf 'Configuring' 'Packages'
-
-    # Move Package Control settings with list of Packages to the config folder
-    cp "$SCRIPT_PATH/opt/sublime/Package\ Control.sublime-settings" "$HOME/.config/sublime-text-3/Packages/User/Package\ Control.sublime-settings"
-
+  ln -s /opt/sublime_text/sublime_text /usr/local/bin/st
+	nosudo st
 }
 
 install_ohmyzsh() {
@@ -314,15 +295,18 @@ install_repo() {
 
 			econ check repo_installed 'google-chrome.list'
             ;;
+						*Sublime*|*sublime*)
 
-        *Sublime*|*sublime*)
-        	repo_cleaner 'webupd8team-ubuntu-sublime-text-3-wily.list' 'Sublime Text 3' 'PPA'
+								if repo_not_installed "$1"; then
+									emes actpos Adding 'Sublime Text 3' PPA
+								else
+									emes actpos Updating 'Sublime Text 3' PPA
+								fi
 
-		    add-apt-repository -y "ppa:webupd8team/sublime-text-3" >> $TMP_DIR/temp_output.log 2>&1 &
-			progress_spinner $!
-
-			econ check repo_installed 'webupd8team-ubuntu-sublime-text-3-wily.list'
-            ;;
+								apt-add-repository -y ppa:numix/ppa >/dev/null 2>&1 &
+								progress_spinner $!
+								econ check repo_installed "sublime"
+								;;
 
         *Yorba*|*yorba*)
         	emes actneg 'Yorba repository' 'is not currently supported on' 'Wily' 'The'
@@ -382,50 +366,29 @@ install_repo() {
 
 			econ check repo_installed "numix"
             ;;
-#             deb http://us.archive.ubuntu.com/ubuntu/ wily universe
-# deb-src http://us.archive.ubuntu.com/ubuntu/ wily universe
-# deb http://us.archive.ubuntu.com/ubuntu/ wily-updates universe
-# deb-src http://us.archive.ubuntu.com/ubuntu/ wily-updates universe
-# # 		*Universe*|*universe*)
-# 			deb http://us.archive.ubuntu.com/ubuntu/ $UB_CODENAME universe" >> /etc/apt/sources.list.d/ubuntu_universe_updates.list) >> $TMP_DIR/temp_output.log 2>&1 &
-# 			deb-src http://us.archive.ubuntu.com/ubuntu/ $UB_CODENAME universe" >> /etc/apt/sources.list.d/ubuntu_universe_updates.list) >> $TMP_DIR/temp_output.log 2>&1 &
-# 			deb http://us.archive.ubuntu.com/ubuntu/ $UB_CODENAME-updates universe" >> /etc/apt/sources.list.d/ubuntu_universe_updates.list) >> $TMP_DIR/temp_output.log 2>&1 &
-# 			deb-src http://us.archive.ubuntu.com/ubuntu/ $UB_CODENAME-updates universe" >> /etc/apt/sources.list.d/ubuntu_universe_updates.list) >> $TMP_DIR/temp_output.log 2>&1 &
-# 		;;
-# 		*Multiverse*|*multiverse*)
-# 			deb http://us.archive.ubuntu.com/ubuntu/ $UB_CODENAME multiverse" >> /etc/apt/sources.list.d/canonical_partner.list) >> $TMP_DIR/temp_output.log 2>&1 &
-# 			deb-src http://us.archive.ubuntu.com/ubuntu/ $UB_CODENAME multiverse" >> /etc/apt/sources.list.d/canonical_partner.list) >> $TMP_DIR/temp_output.log 2>&1 &
-# 			deb http://us.archive.ubuntu.com/ubuntu/ $UB_CODENAME-updates multiverse" >> /etc/apt/sources.list.d/canonical_partner.list) >> $TMP_DIR/temp_output.log 2>&1 &
-# 			deb-src http://us.archive.ubuntu.com/ubuntu/ $UB_CODENAME-updates multiverse" >> /etc/apt/sources.list.d/canonical_partner.list) >> $TMP_DIR/temp_output.log 2>&1 &
-# 			;;
-# 		*Verses*|*verses*|*Universe*|*universe*|*Multiverse*|*multiverse*)
-# 			add-apt-repository -y "deb http://us.archive.ubuntu.com/ubuntu/ $UB_CODENAME universe multiverse" >> $TMP_DIR/temp_output.log 2>&1
-# 			add-apt-repository -y "deb http://us.archive.ubuntu.com/ubuntu/ $UB_CODENAME-updates universe multiverse" >> $TMP_DIR/temp_output.log 2>&1 &
-# 			progress_spinner $!
 
-# echo "done"
-# 			# econ check repo_installed " numix-ubuntu-ppa-$UB_CODENAME.list"
-# 			;;
+
 		*Partners*|*partners*)
-			if repo_l_not_installed "## deb http:\/\/archive.canonical.com\/ubuntu $OS_NAME partner"; then
+			if repo_l_not_installed "# deb http:\/\/archive.canonical.com\/ubuntu $OS_NAME partner"; then
 			    emes actpos 'Activating' 'Canonical' 'Partners' 'Repository'
-			    sed -i "s/## deb http:\/\/archive.canonical.com\/ubuntu $OS_NAME partner/deb http:\/\/archive.canonical.com\/ubuntu $OS_NAME partner/g" /etc/apt/sources.list
-			    sed -i "s/## deb-src http:\/\/archive.canonical.com\/ubuntu $OS_NAME partner/deb-src http:\/\/archive.canonical.com\/ubuntu $OS_NAME partner/g" /etc/apt/sources.list
+			    sed -i "s/# deb http:\/\/archive.canonical.com\/ubuntu $OS_NAME partner/deb http:\/\/archive.canonical.com\/ubuntu $OS_NAME partner/g" /etc/apt/sources.list
+			    sed -i "s/# deb-src http:\/\/archive.canonical.com\/ubuntu $OS_NAME partner/deb-src http:\/\/archive.canonical.com\/ubuntu $OS_NAME partner/g" /etc/apt/sources.list
 				progress_spinner $!
-				econ check repo_l_installed "## deb http:\/\/archive.canonical.com\/ubuntu $OS_NAME partner"
+				econ check repo_l_installed "# deb http:\/\/archive.canonical.com\/ubuntu $OS_NAME partner"
 			else
 				emes infpos 'Canonical' 'already installed' 'Partners' 'repository'
 			fi
 			;;
 		*Gnome*|*gnome*)
+			emes actpos 'Activating' 'Gnome3' '' 'Repository'
+			add-apt-repository -y "ppa:gnome3-team/gnome3" >/dev/null 2>&1 &
+			progress_spinner $!
+			econ check repo_installed 'gnome3'
 
-			add-apt-repository -y "ppa:gnome3-team/gnome3" >> $TMP_DIR/temp_output.log 2>&1 &
-			add-apt-repository -y "ppa:gnome3-team/gnome3-staging" >> $TMP_DIR/temp_output.log 2>&1 &
-			# $(echo "deb http://ppa.launchpad.net/gnome3-team/gnome3/ubuntu wily main" >> /etc/apt/sources.list.d/gnome3.list) >> $TMP_DIR/temp_output.log 2>&1 &
-			# $(echo "deb http://ppa.launchpad.net/gnome3-team/gnome3/ubuntu $UB_CODENAME main" >> /etc/apt/sources.list.d/gnome3.list) >> $TMP_DIR/temp_output.log 2>&1 &
-			# $(echo "deb-src http://ppa.launchpad.net/gnome3-team/gnome3/ubuntu $UB_CODENAME main" >> /etc/apt/sources.list.d/gnome3.list) >> $TMP_DIR/temp_output.log 2>&1 &
-			# $(echo "deb http://ppa.launchpad.net/gnome3-team/gnome3-staging/ubuntu $UB_CODENAME main" >> /etc/apt/sources.list.d/gnome3-staging.list) >> $TMP_DIR/temp_output.log 2>&1 &
-			# $(echo "deb-src http://ppa.launchpad.net/gnome3-team/gnome3-staging/ubuntu $UB_CODENAME main" >> /etc/apt/sources.list.d/gnome3-staging.list) >> $TMP_DIR/temp_output.log 2>&1 &
+			emes actpos 'Activating' 'Gnome3' 'Stagine' 'Repository'
+			add-apt-repository -y "ppa:gnome3-team/gnome3-staging" >/dev/null 2>&1 &
+			progress_spinner $!
+			econ check repo_installed 'gnome3-staging'
 		;;
     * )
 		emes actneg "$1 repository" 'currently not supported' '' "I\'m sorry,"
@@ -509,7 +472,7 @@ apt_update() {
 
     set +o errexit
 
-    apt-get -qq -y update >> $TMP_DIR/temp_output.log 2>&1 &
+    apt-get -qq -y update >/dev/null 2>&1 &
     local pid=$!
 		progress_spinner $!
 
@@ -526,7 +489,7 @@ apt_upgrade() {
 
     set +o errexit
 
-    apt-get -qq -y upgrade >> $TMP_DIR/temp_output.log 2>&1 &
+    apt-get -qq -y upgrade >/dev/null 2>&1 &
     local pid=$!
 		progress_spinner $!
 
@@ -542,7 +505,7 @@ apt_dist_upgrade() {
 
     set +o errexit
 
-    apt-get -qq -y dist-upgrade >> $TMP_DIR/temp_output.log 2>&1 &
+    apt-get -qq -y dist-upgrade >/dev/null 2>&1 &
     local pid=$!
 		progress_spinner $!
 

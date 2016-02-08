@@ -38,6 +38,30 @@ edie() {
 			einf -bl "☺"
 			safe_exit
 			;;
+		restartGnomeShell)
+			ewar -ni
+			ewar -dn " Press "
+			ente -bn "Alt+F2"
+			ewar -dn " then type "
+			ente -bn "r"
+			ewar -dn " and press "
+			ente -bn "Enter"
+			ewar -dn " to restart the "
+			einf -b "Gnome Shell"
+			safe_exit
+			;;
+		timeToReboot)
+			ewar -ni
+			einf -n " We just changed lots of important stuff. "
+			einf -bnl "Exciting isn't it?"
+			ewar "!"
+			ewar -nd "That said, if any time were the "
+			ewar -nb "right"
+			ewar -d " time to reboot..."
+			ewar -nd "That moment is definately "
+			eerr -nbd "NOW"
+			ewar "!!"
+			;;
 		runassudo)
 			if is_not_sudo; then
 				eerr -nb "This command must be run by the "
@@ -151,8 +175,8 @@ emes() {
             [ -n "$5" ] && eart -n --c=226 " $5" ||  eart -n --c=226 "    ⮱  "
             eart -n --c=202 "⚙ "
             [ -n "$4" ] && eart -n --c=055 " $4" || true
-            [ -n "$2" ] && eart -dn --c=120 "$2 " || 'Installing '
-            [ -n "$3" ] && eart -bn --c=047 "$3" || true
+            [ -n "$2" ] && eart -dn --c=120 " $2" || ' Installing'
+            [ -n "$3" ] && eart -bn --c=047 " $3" || true
             [ -n "$6" ] && eart -n --c=121 " $6" || true
             ekho -n "..."
             ;;
@@ -160,7 +184,7 @@ emes() {
             [ -n "$3" ] && eart -n --c=104 "$3 " || eart -n --c=104 'Configuring '
             [ -n "$2" ] && eart -bn --c=047 "$2" || eart -b --c=047 'an application'
             [ -n "$4" ] && eart -n --c=104 " $4" || true
-            eart --c=202 " ⚙"
+            eart --c=202 " ⚙ "
             ;;
         header)
             eart --c=077 '\n============================================================'

@@ -15,11 +15,11 @@
 # ############### Library Globals ##################
 # ##################################################
 
-declare -Ax TITLE_INFO=([curl]='Curl' [dtrx]='Do The Right Extraction (dtrx)' [git]='Git' [sublime-text-installer]='Sublime Text 3' [google-chrome-stable]='Google Chrome' [rabbitvcs-nautilus-3.0]='RabbitVCS' [mysql-workbench]='MySQL Workbench' [filezilla]='Filezilla Client' [tasksel]='Tasksel' [spotify-client]='Spotify' [geary]='Geary' [gimp]='GNU Image Manipulation Program (GIMP)' [rar]='RAR' [unrar]='UNRAR' [chromium-browser]='Chromium' [autoconf]='Autoconf' [libgcrypt11]='LGPL crypto library:for:Spotify' [slack-desktop]='Slack Desktop')
+declare -Ax TITLE_INFO=([curl]='Curl' [dtrx]='Do The Right Extraction (dtrx)' [git]='Git' [sublime-text]='Sublime Text:3' [google-chrome-stable]='Google Chrome' [rabbitvcs-nautilus-3.0]='RabbitVCS' [mysql-workbench]='MySQL Workbench' [filezilla]='Filezilla Client' [tasksel]='Tasksel' [spotify-client]='Spotify' [geary]='Geary' [gimp]='GNU Image Manipulation Program (GIMP)' [rar]='RAR' [unrar]='UNRAR' [chromium-browser]='Chromium' [autoconf]='Autoconf' [libgcrypt11]='LGPL crypto library:for:Spotify' [slack-desktop]='Slack Desktop')
 
 readonly -A TITLE_INFO
 
-declare -Ax LINK_INFO=([libgcrypt11]='https://launchpad.net/ubuntu/+archive/primary/+files/libgcrypt11_1.5.3-2ubuntu4.2_amd64.deb' [slack-desktop]='https://slack-ssb-updates.global.ssl.fastly.net/linux_releases/slack-desktop-1.2.4-amd64.deb')
+declare -Ax LINK_INFO=([libgcrypt11]='https://launchpad.net/ubuntu/+archive/primary/+files/libgcrypt11_1.5.3-2ubuntu4.2_amd64.deb' [slack-desktop]='https://slack-ssb-updates.global.ssl.fastly.net/linux_releases/slack-desktop-1.2.4-amd64.deb' [sublime-text]='https://download.sublimetext.com/sublime-text_build-3083_amd64.deb')
 
 readonly -A LINK_INFO
 

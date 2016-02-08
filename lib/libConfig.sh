@@ -38,93 +38,41 @@ config_gnome_terminal() {
 }
 
 config_sublime() {
+  emes config 'Configuring' 'Sublime Text' '3'
 
-    emes config 'Sublime Text 3'
+  emes extraconf 'Package Control' 'packages' 'Installing'
+  sleep 60
+  esuc -i
 
-    # Install License Key
-    # sudo -u $SUDO_USER cp $__dir__/resources/License.sublime_license $HOME/.config/sublime-text-3/Local/License.sublime_license
-
-    # emes extraconf 'Configuring' 'Packages'
-    if is_not_dir "$HOME/.config/sublime-text-3/Installed\ Packages"; then
-        install_sublime_pc
-    else
-        # Move Package Control settings with list of Packages to the config folder
-        # nosudo cp "$SCRIPT_PATH/opt/sublime/Package\ Control.sublime-settings" "$HOME/.config/sublime-text-3/Packages/User/Package\ Control.sublime-settings"
-
-        # Make an Sublime executable from the cli by making a sym link in local bin
-        # ln -s "$SCRIPT_PATH/opt/sublime_text/sublime_text" "/usr/local/bin/st"
-
-        # emes extraconf 'Running' 'Sublime Text' 'to autogenerate files'
-        # Start up Sublime to install packages from 'Package\ Control.sublime-settings'
-        # nosudo st
-
-        # sleep 10
-
-        # Preferences
-        is_file "$HOME/.config/sublime-text-3/Packages/User/Preferences.sublime-settings" && cp "$SCRIPT_PATH/opt/sublime/Preferences.sublime-settings" "$HOME/.config/sublime-text-3/Packages/User/Preferences.sublime-settings" || emes infpos 'Package Preferences' 'already installed'
-        # nosudo cp "$SCRIPT_PATH/opt/sublime/Preferences.sublime-settings" "$HOME/.config/sublime-text-3/Packages/User/Preferences.sublime-settings"
-
-        # Custom Color Theme
-        cp "$SCRIPT_PATH/opt/sublime/OensThemev2.tmTheme" "$HOME/.config/sublime-text-3/Packages/User/OensThemev2.tmTheme"
-    fi
-
+  emes extraconf  'settings' 'Sublime Text 3' 'Configuring'
+  esuc -i
 }
 
-config_gnome_theme() {
-    emes config 'Configuring' 'Gnome 3' 'Theme'
-    # if is_file "$HOME/.config/sublime-text-3/Packages/User/Preferences.sublime-settings"; then
-    #     emes infpos 'Package Preferences' 'already installed'
-    # else
-        check_dependencies dpkg 'autoconf' 'automake' 'pkg-config' 'libgtk-3-dev'
-        emes extrapos 'Building' 'Arc-theme'
 
 
-        # Install Arc Theme
-        nosudo git clone https://github.com/horst3180/arc-theme --depth 1
-        cd arc-theme
-        nosudo chmod +x autogen.sh
-        nosudo ./autogen.sh --prefix=/usr
-        make install
-        cd ..
-        nosudo rm -rf arc-theme
+install_theme() {
+  case $1 in
+    Arc-Dark*|Arc-dark*|arc-dark*)
+      emes config 'Installing' 'Arc-Dark' 'Gnome theme'
 
-        # Set GTK theme with gsettings
-        # nosudo gsettings set org.gnome.desktop.interface gtk-theme 'Arc-Dark'
-        esuc -i
-    # fi
+      install_package autoconf
+      install_package automake
+      install_package pkg-config
+      install_package libgtk-3-dev
+      install_package git
 
-    # if is_file "$HOME/.config/sublime-text-3/Packages/User/Preferences.sublime-settings"; then
-    #     emes infpos 'Package Preferences' 'already installed'
-    # else
-        # Install Numic Circle Icon Theme
-        install_package numix-icon-theme-circle
+      nosudo git clone https://github.com/horst3180/arc-theme --depth 1
+      cd arc-theme
+      nosudo chmod +x autogen.sh
+      nosudo ./autogen.sh --prefix=/usr
+      make install
+      cd ..
+      rm -rf arc-theme
 
-        #Fix Sublime_text Icon
-        dpkg_installed sublime-text-installer && ln -s /usr/share/icons/Numix-Circle/48x48/apps/sublime-text.svg /usr/share/icons/Numix-Circle/48x48/apps/Sublime_text.svg || true
-
-        # Set Icon theme with gsettings
-        # nosudo gsettings set org.gnome.desktop.interface icon-theme 'Numix-Circle'
-    # fi
-
-    # if is_file "$HOME/.config/sublime-text-3/Packages/User/Preferences.sublime-settings"; then
-    #     emes infpos 'Package Preferences' 'already installed'
-    # else
-        emes actpos 'Installing' 'GT3 Light Cursor'
-
-        nosudo wget -q - http://gnome-look.org/CONTENT/content-files/106536-GT3-colors-pack.rar  >> $TMP_DIR/temp_output.log 2>&1 &
-
-        nosudo unrar e 106536-GT3-colors-pack.rar >> $TMP_DIR/temp_output.log 2>&1 &
-        tar zxf GT3.tar.gz -C /usr/share/icons >> $TMP_DIR/temp_output.log 2>&1 &
-        tar zxf GT3-bronze.tar.gz -C /usr/share/icons >> $TMP_DIR/temp_output.log 2>&1 &
-        tar zxf GT3-red.tar.gz -C /usr/share/icons >> $TMP_DIR/temp_output.log 2>&1 &
-        tar zxf GT3-azure.tar.gz -C /usr/share/icons >> $TMP_DIR/temp_output.log 2>&1 &
-        tar zxf GT3-light.tar.gz -C /usr/share/icons >> $TMP_DIR/temp_output.log 2>&1 &
-
-        nosudo rm 106536-GT3-colors-pack.rar GT3.tar.gz GT3-bronze.tar.gz GT3-red.tar.gz GT3-azure.tar.gz GT3-light.tar.gz >> $TMP_DIR/temp_output.log 2>&1 &
-
-        # nosudo gsettings set org.gnome.desktop.interface cursor-theme 'GT3-light' >> $TMP_DIR/temp_output.log 2>&1 &
-        esuc -i
-    # fi
+      econ check is_dir "/usr/share/themes/Arc-Dark"
+      ;;
+    *) eerr "Please Specify a Gnome theme..." && safe_exit;;
+  esac
 }
 
 config_gnome_settings() {
@@ -140,6 +88,7 @@ config_gnome_settings() {
     gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-ac-type 'nothing'
     gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-battery-timeout 1800
     gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-ac-timeout 3600
+    gsettings set org.gnome.settings-daemon.plugins.power active false
     printf ' '
     esuc -i
 
@@ -166,6 +115,7 @@ config_gnome_settings() {
     gsettings set org.gnome.desktop.background picture-uri "file://$HOME/.local/share/wallpaper/$usr_wallpaper"
     case $usr_screensaver in
         teksyndicate) usr_screensaver='teksyndicate_blue.png';;
+        teksyndicate_blue|teksyndicate-blue|ts-blue) usr_screensaver='teksyndicate_blue.png';;
         *) :;;
     esac
     gsettings set org.gnome.desktop.screensaver picture-uri "file://$HOME/.local/share/wallpaper/$usr_screensaver"
