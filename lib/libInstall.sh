@@ -495,7 +495,7 @@ install_user_avatar() {
 
 	emes config-single 'user avatar' 'Setting' "to $usr_avatar"
 
-	sed -i "s/SystemAccount=false/Icon=\/var\/lib\/AccountsService\/icons\/$SUDO_USER\nSystemAccount=false/g" "\/var\/lib\/AccountsService\/users\/$SUDO_USER"
+	sed -i "s/SystemAccount=false/Icon=\/var\/lib\/AccountsService\/icons\/$SUDO_USER\nSystemAccount=false/g" "/var/lib/AccountsService/users/$SUDO_USER"
 
 	cp "$SCRIPT_PATH/opt/graphics/avatar/$usr_avatar" "/var/lib/AccountsService/icons/$SUDO_USER"
 

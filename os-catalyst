@@ -309,7 +309,7 @@ tput civis
 					case $cursor_theme in
 						GT3-Light*|GT3-light*|Gt3-light*|gt3-light*)
 							emes config-single 'GT3-light' 'Setting' 'as cursor theme'
-							gsettings set org.gnome.desktop.interface icon-theme 'GT3-light'
+							gsettings set org.gnome.desktop.interface cursor-theme 'GT3-light'
 							;;
 						*) eerr "Please Specify a theme..." && safe_exit;;
 					esac
@@ -351,14 +351,9 @@ tput civis
 						Ubuntu)
 							edie runassudo
 							install_user_avatar
-							# install_repo 'chrome'
-							# install_repo 'universe'
-							# install_repo 'multiverse'
 							install_repo 'partners'
-							# install_repo 'gnome'
-							# apt_update
+							install_repo 'gnome'
 							apt_update
-							# apt_upgrade
 							apt_dist_upgrade
 							disable_error_dialogs
 							;;
@@ -379,11 +374,11 @@ tput civis
 							install_package libgtk-3-dev
 							install_package git
 
-							nosudo git clone https://github.com/horst3180/arc-theme --depth 1  >> $TMP_DIR/temp_output.log 2>&1 &
+							nosudo git clone https://github.com/horst3180/arc-theme --depth 1
 							cd arc-theme
 							nosudo chmod +x autogen.sh
-							nosudo ./autogen.sh --prefix=/usr >> $TMP_DIR/temp_output.log 2>&1 &
-							make install  >> $TMP_DIR/temp_output.log 2>&1 &
+							nosudo ./autogen.sh --prefix=/usr
+							make install
 							cd ..
 							rm -rf arc-theme
 
@@ -414,8 +409,8 @@ tput civis
 						GT3-Light*|GT3-light*|Gt3-light*|gt3-light*)
 							emes config 'Installing' 'Gt3-light' 'cursor theme'
 							install_package unrar
-							wget -q - http://gnome-look.org/CONTENT/content-files/106536-GT3-colors-pack.rar >> $TMP_DIR/temp_output.log 2>&1 &
-							unrar e 106536-GT3-colors-pack.rar >> $TMP_DIR/temp_output.log 2>&1 &
+							wget -q - http://gnome-look.org/CONTENT/content-files/106536-GT3-colors-pack.rar
+							unrar e 106536-GT3-colors-pack.rar
 
 							tar zxf GT3.tar.gz -C /usr/share/icons
 							tar zxf GT3-bronze.tar.gz -C /usr/share/icons
