@@ -392,8 +392,8 @@ tput civis
 						GT3-Light*|GT3-light*|Gt3-light*|gt3-light*)
 							emes config 'Installing' 'Gt3-light' 'cursor theme'
 							install_package unrar
-							wget -q - http://gnome-look.org/CONTENT/content-files/106536-GT3-colors-pack.rar
-							unrar e 106536-GT3-colors-pack.rar
+							nosudo wget -q - http://gnome-look.org/CONTENT/content-files/106536-GT3-colors-pack.rar
+							nosudo unrar e 106536-GT3-colors-pack.rar
 
 							tar zxf GT3.tar.gz -C /usr/share/icons
 							tar zxf GT3-bronze.tar.gz -C /usr/share/icons

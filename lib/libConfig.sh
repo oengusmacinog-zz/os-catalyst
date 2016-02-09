@@ -40,12 +40,18 @@ config_gnome_terminal() {
 config_sublime() {
   emes config 'Configuring' 'Sublime Text' '3'
 
-  emes extraconf 'Package Control' 'packages' 'Installing'
-  sleep 60
-  esuc -i
 
-  emes extraconf  'settings' 'Sublime Text 3' 'Configuring'
-  esuc -i
+  emes extraconf 'Package Control' 'packages' 'Installing'
+    wget -qP ~/.config/sublime-text-3/Installed\ Packages http://packagecontrol.io/Package%20Control.sublime-package
+    st
+    sleep 10
+    cp "$SCRIPT_PATH/opt/sublime/Package Control.sublime-settings" "$HOME/.config/sublime-text-3/Packages/User/Package Control.sublime-settings"
+    sleep 30
+    esuc -i
+
+    emes extraconf  'settings' 'Sublime Text 3' 'Configuring'
+    cp "$SCRIPT_PATH/opt/sublime/Preferences.sublime-settings" "$HOME/.config/sublime-text-3/Packages/User/Preferences.sublime-settings"
+    esuc -i
 }
 
 
@@ -88,7 +94,7 @@ config_gnome_settings() {
     gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-ac-type 'nothing'
     gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-battery-timeout 1800
     gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-ac-timeout 3600
-    gsettings set org.gnome.settings-daemon.plugins.power active false
+    # gsettings set org.gnome.settings-daemon.plugins.power active false
     printf ' '
     esuc -i
 
