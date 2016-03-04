@@ -210,7 +210,6 @@ ui_test() {
 other_test() {
 
 	:
-	# printspc 5
 
 }
 
@@ -227,12 +226,14 @@ test_cleaner() {
 
 test_test() {
 
+	for core_file in "${SOURCE_PATH}"/osx/*.sh; do
+		if [ -e "${core_file}" ]; then
+			source "$core_file"
+		fi
+	done
 
+	osx_test
 
-# emes actpos 'Updating' 'oen' 'two' 'three'
- # echo "deb http://archive.canonical.com/ubuntu $UB_CODENAME partner"
- # $(echo "deb http://ppa.launchpad.net/gnome3-team/gnome3/ubuntu $UB_CODENAME main" >> /etc/apt/sources.list.d/gnome2.list)
-:
 }
 
 main() {

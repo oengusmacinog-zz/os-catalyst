@@ -42,7 +42,14 @@ case $OSTYPE in
 			*) edie installnotsupported 'Linux';;
 		esac
 	;;
-	darwin) edie installnotsupported 'OSx';;
+	darwin) 
+		einf 'This is OSx'
+		for core_file in "${SOURCE_PATH}"/osx/*.sh; do
+			if [ -e "${core_file}" ]; then
+				source "$core_file"
+			fi
+		done
+		;;
 esac
 
 readarray APPSLIST < "$LIST_PATH/App.list"

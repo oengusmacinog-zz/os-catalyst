@@ -38,13 +38,13 @@ osx-dependencies() {
 # ##################################################
 osx_function() {
 	
-	gosudo()
+	gosudo
 
 	# Set computer name (as done via System Preferences → Sharing)
-	sudo scutil --set ComputerName $machine_name
-	sudo scutil --set HostName $machine_name
-	sudo scutil --set LocalHostName $machine_name
-	sudo defaults write /Library/Preferences/SystemConfiguration/com.apple.smb.server NetBIOSName -string $machine_name
+	sudo scutil --set ComputerName "$machine_name"
+	sudo scutil --set HostName "$machine_name"
+	sudo scutil --set LocalHostName "$machine_name"
+	sudo defaults write /Library/Preferences/SystemConfiguration/com.apple.smb.server NetBIOSName -string "$machine_name"
 
 	# Set standby delay to 24 hours (default is 1 hour)
 	sudo pmset -a standbydelay 86400
