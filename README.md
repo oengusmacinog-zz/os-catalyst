@@ -10,6 +10,12 @@ OS Catalyst is meant to bootstrap a new OS install of OSx or Linux quickly so it
 Installation
 ------------
 
+### Curl Package
+
+```bash
+cd; curl -#L https://github.com/oengusmacinog/os-catalyst/tarball/master | tar -xzv --strip-components 1 --exclude={README.md,LICENSE}
+```
+
 ### Installing OS-Catalyst
 Start out by either cloning or downloading the os-catalyst repository to a location where you'd like to run it from on your local machine.
 

@@ -31,6 +31,24 @@ nosudo() {
 
 }
 
+# Go Sudo
+# ##################################################
+# Ask for the admin password upfront and keep-alive:
+# update existing `sudo` time stamp until `.osx` has
+# finished.
+#
+# Usage:
+#    nosudo "command -o arguments"
+# ##################################################
+
+gosudo() {
+
+	sudo -v
+
+	while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
+
+}
+
 # Check for dependencies
 # ##################################################
 # Check for dependencies and install if needed
